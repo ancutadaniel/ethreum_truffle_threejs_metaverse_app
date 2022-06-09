@@ -13,7 +13,7 @@ export const reducer = (state, action) => {
     SET_LAND_OWNER,
   } = ACTIONS;
 
-  console.log(action.type, action.value);
+  // console.log(action.type, action.value);
 
   switch (action.type) {
     case SET_WEB3:
