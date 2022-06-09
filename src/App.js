@@ -14,33 +14,14 @@ import { Canvas } from '@react-three/fiber';
 import { Sky, MapControls } from '@react-three/drei';
 import { Physics } from '@react-three/cannon';
 
-import {
-  Container,
-  Card,
-  Dimmer,
-  Loader,
-  Message,
-  Button,
-  Icon,
-} from 'semantic-ui-react';
+import { Container, Card, Dimmer, Loader } from 'semantic-ui-react';
+import Error from './components/Error/Error';
+import PlotDetails from './components/Plot/PlotDetails';
 
 const App = () => {
   const [state, dispatch] = useReducer(reducer, defaultState);
-  const {
-    web3,
-    errors,
-    loading,
-    reloadData,
-    wrongNetwork,
-    account,
-    contract,
-    landId,
-    landName,
-    landOwner,
-    cost,
-    buildings,
-    hasOwner,
-  } = state;
+  const { errors, loading, reloadData, wrongNetwork, account, buildings } =
+    state;
   const {
     SET_WEB3,
     SET_ERROR,
@@ -48,7 +29,6 @@ const App = () => {
     ACCOUNT_CHANGE,
     NETWORK_CHANGE,
     TOGGLE_NETWORK,
-    SET_BUILDINGS,
   } = ACTIONS;
 
   const loadWeb3 = useCallback(async () => {
@@ -152,33 +132,9 @@ const App = () => {
     SET_LOADING,
   ]);
 
-  const buyHandler = async (_id) => {
-    try {
-      await contract.methods
-        .mint(_id)
-        .send({ from: account, value: web3.utils.toWei('1', 'ether') });
-      const getBuildings = await contract.methods.getBuildings().call();
-      const name = getBuildings[_id - 1].name;
-      const owner = getBuildings[_id - 1].owner;
-
-      dispatch({
-        type: SET_BUILDINGS,
-        value: {
-          buildings: getBuildings,
-          landName: name,
-          landOwner: owner,
-        },
-      });
-    } catch (error) {
-      dispatch({ type: SET_ERROR, value: error });
-    }
-  };
-
   useEffect(() => {
     reloadData && loadWeb3();
   }, [reloadData, loadWeb3]);
-
-  console.log(state);
 
   return (
     <div className='App'>
@@ -245,94 +201,10 @@ const App = () => {
             </Suspense>
             <MapControls />
           </Canvas>
-          <Container
-            style={{ position: 'absolute', top: '77px', left: '10px' }}
-          >
-            {account && (
-              <Card>
-                <Card.Content>
-                  <Card.Header>{landName}</Card.Header>
-                  <Card.Meta>Land Id: {landId}</Card.Meta>
-                  <Card.Description>
-                    <Icon name='user' />
-                    Land Owner:
-                    {`${landOwner.slice(0, 5)}...${landOwner.slice(38, 42)}`}
-                  </Card.Description>
-                </Card.Content>
-                <Card.Content extra>
-                  {!hasOwner && (
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'baseline',
-                      }}
-                    >
-                      <div className='info_owner'>
-                        <h4>Cost: {`${cost} ETH`}</h4>
-                      </div>
-                      <Button
-                        style={{ width: 'auto' }}
-                        inverted
-                        color='green'
-                        onClick={() => buyHandler(landId)}
-                      >
-                        Buy Property
-                      </Button>
-                    </div>
-                  )}
-                </Card.Content>
-              </Card>
-            )}
-          </Container>
+          <PlotDetails state={state} dispatch={dispatch} />
         </>
       )}
-      <Container>
-        {errors && (
-          <Message
-            negative
-            style={{ position: 'absolute', top: '50vh', left: '30vw' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Message.Header>Code: {errors?.code}</Message.Header>
-              <Button
-                style={{
-                  padding: '0px',
-                  background: 'none',
-                  color: 'red',
-                  marginRight: '0px',
-                }}
-                onClick={() => dispatch({ type: SET_ERROR, value: null })}
-              >
-                <Icon name='close' />
-              </Button>
-            </div>
-            <p style={{ wordBreak: 'break-word' }}>{errors?.message}</p>
-          </Message>
-        )}
-        {wrongNetwork && (
-          <Message
-            negative
-            style={{ position: 'absolute', top: '50vh', left: '30vw' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Message.Header>Wrong Network</Message.Header>
-              <Button
-                style={{
-                  padding: '0px',
-                  background: 'none',
-                  color: 'red',
-                  marginRight: '0px',
-                }}
-                onClick={() => dispatch({ type: TOGGLE_NETWORK })}
-              >
-                <Icon name='close' />
-              </Button>
-            </div>
-            <p>Please select from Metamask - Rinkeby Test Network (id 4)</p>
-          </Message>
-        )}
-      </Container>
+      <Error errors={errors} wrongNetwork={wrongNetwork} dispatch={dispatch} />
     </div>
   );
 };
