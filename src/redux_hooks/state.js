@@ -1,0 +1,17 @@
+export const defaultState = {
+  account: '',
+  balance: 0,
+  contract: {},
+  errors: null,
+  loading: true,
+  networkID: null,
+  reloadData: false,
+  web3: {},
+  wrongNetwork: false,
+  cost: 0,
+  buildings: null,
+  landId: 0,
+  landName: '',
+  landOwner: '',
+  hasOwner: false,
+};

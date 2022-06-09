@@ -1,0 +1,20 @@
+#main_menu {
+  border-radius: 0;
+  background-color: #6dffff;
+  color: black;
+}
+
+#main_menu .active_item,
+#main_menu .item {
+  color: black;
+}
+
+.account {
+  color: black;
+  margin: auto;
+  padding-right: 10px;
+}
+
+.account:last-child {
+  margin-bottom: auto;
+}
